@@ -1,0 +1,73 @@
+{
+"value": [
+        {
+            "subject": "Case# 123456: VABC - case name HERE",
+            "sentDateTime": "2023-07-13T03:53:55Z",
+            "sender": {
+                "emailAddress": {
+                    "name": "Microsoft Planner",
+                    "address": "noreply@Planner.Office365.com"
+                }
+            }
+        },
+        {
+            "subject": "Case# 987654: TRSC - case NAME here as well",
+            "sentDateTime": "2023-07-14T03:53:55Z",
+            "sender": {
+                "emailAddress": {
+                    "name": "Microsoft Planner 2",
+                    "address": "noreply2@Planner.Office365.com"
+                }
+            }
+        },
+        {
+            "subject": "Case#127654:EXLD - case NAME here as well2",
+            "sentDateTime": "2023-07-15T03:53:55Z",
+            "sender": {
+                "emailAddress": {
+                    "name": "Microsoft Planner 2",
+                    "address": "noreply2@Planner.Office365.com"
+                }
+            }
+        },
+        {
+            "subject": "Case#127514: CROC - case NAME here as well3",
+            "sentDateTime": "2023-07-13T03:53:55Z",
+            "sender": {
+                "emailAddress": {
+                    "name": "Microsoft Planner 2",
+                    "address": "noreply2@Planner.Office365.com"
+                }
+            }
+        },
+        {
+            "subject": "Case#734862:CROC-case NAME here as well3",
+            "sentDateTime": "2023-07-13T03:53:55Z",
+            "sender": {
+                "emailAddress": {
+                    "name": "Microsoft Planner 2",
+                    "address": "noreply2@Planner.Office365.com"
+                }
+            }
+        },
+        {
+            "subject": "Case#984641:trsc-case NAME here as well3",
+            "sentDateTime": "2023-07-11T03:53:55Z",
+            "sender": {
+                "emailAddress": {
+                    "name": "Microsoft Planner 2",
+                    "address": "noreply2@Planner.Office365.com"
+                }
+            }
+        },{
+            "subject": "Case#487616:case NAME here as well3",
+            "sentDateTime": "2023-07-12T03:53:55Z",
+            "sender": {
+                "emailAddress": {
+                    "name": "Microsoft Planner 2",
+                    "address": "noreply2@Planner.Office365.com"
+                }
+            }
+        }
+    ]
+}

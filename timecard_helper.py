@@ -90,4 +90,6 @@ class Email:
         return result
 
     def get_final_list(self): # this will return a dictionary in such format: {Date: [case#:client code, case#:client code]...}
-        pass
+        date_list = self.get_date()
+        client_code_case_number_dict = self.get_client_code_and_case_number()
+        final_result = dict(zip(date_list, client_code_case_number_dict))

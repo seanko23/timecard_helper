@@ -1,4 +1,5 @@
 # timecard_helper
-This is to help people enter timecards
+This is to help people enter timecards by providing the Case# and Client Code which an user has worked.
 
-More to work on
+Sample json file exsts in this. The data format may change depending on the records returned with the Microsoft Graph API.
+

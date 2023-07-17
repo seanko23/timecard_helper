@@ -51,7 +51,7 @@
             }
         },
         {
-            "subject": "Case#984641:trsc-case NAME here as well3",
+            "subject": "Case#:trsc-case NAME here as well3",
             "sentDateTime": "2023-07-11T03:53:55Z",
             "sender": {
                 "emailAddress": {
@@ -60,7 +60,7 @@
                 }
             }
         },{
-            "subject": "Case#487616:case NAME here as well3",
+            "subject": "Case#:case NAME here as well3",
             "sentDateTime": "2023-07-12T03:53:55Z",
             "sender": {
                 "emailAddress": {

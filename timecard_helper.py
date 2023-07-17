@@ -1,8 +1,12 @@
 import json
 import re
+import datetime
+from datetime import datetime
 
 class Email:
     client_list = ['TRSC', 'VABC', 'CROC', 'EXLD']
+    counter_case = 0
+    counter_code = 0
     
     def __init__(self, file_name):
         self.file_name = file_name
@@ -14,8 +18,7 @@ class Email:
         
         return data
         
-    def get_subject(self): # not calling open_file here, may need to adjust. Looking into it 
-        #also reviewing if this qualifies for staticmethod
+    def get_subject(self): # Review to see if this qualifies for staticmethod
         subject_list = []
         
         for i in self.open_file()['value']:
@@ -24,50 +27,67 @@ class Email:
         return subject_list
     
     def get_date(self):
-        pass
-        
+        date_list = []
+        for i in self.open_file()['value']:
+            date = datetime.strptime(i['sentDateTime'],"%Y-%m-%dT%H:%M:%SZ").date()
+            date_list.append(date)
 
+        return date_list
+        
     def get_case_number(self):
         case_number_list = []
         
         for i in self.get_subject():
             case_number = re.findall(r'(\d{6})', i) # at this point case_number is a list type
-
-            for x in case_number:
-                case_number_str = ""
-                case_number_str += x
+            no_subject = "UNKNOWN Case Number"
+            if case_number:
+                for x in case_number:
+                    case_number_str = ""
+                    case_number_str += x
+                    case_number_list.append(case_number_str)
+            else: # Have to have this logic for client code
+                Email.counter_case+=1
+                counter_str = str(Email.counter_case)
+                no_subject += counter_str
+                case_number_str = no_subject
                 case_number_list.append(case_number_str)
-            
+
         return case_number_list
     
     def get_client_code(self):
         client_code_list = []
         
         for i in self.get_subject():
-            case_number = re.findall(r'(\d{6})', i)
             client_code = re.findall(r'(\S{4})', i)
-
+            
             for x in client_code: # At this point nested list is called
                 client_code = x.upper()
                 if client_code in Email.client_list: # If match is found the for loop breaks here
                     break
                     
-                elif client_code not in Email.client_list: # Here match is not found
-                    no_client_code = "UNKNOWN"
+                elif client_code not in Email.client_list: # Here match is not found - clean up the addition
+                    #print(type(Email.counter_code))
+                    no_client_code = "UNKNOWN Client Code"
+                    Email.counter_code+=1
+                    counter_str = str(Email.counter_code)
+                    no_client_code += counter_str
+                    no_client_code_result = no_client_code
                     client_code = None
     
             if client_code is not None:
                 client_code_list.append(client_code)
             else:
-                client_code_list.append(no_client_code)
+                client_code_list.append(no_client_code_result)
         return client_code_list
     
     def get_client_code_and_case_number(self):
-        result = dict(zip(self.get_case_number(), self.get_client_code()))
+        case_number_list = self.get_case_number()
+        client_code_list = self.get_client_code()
+        if len(case_number_list) == len(client_code_list):
+            result = dict(zip(case_number_list, client_code_list))
+        else:
+            result = "UNKNOWN ERROR"
         return result
 
-# The end result should look like this: {Date: [case#:client code, case#:client code]...}
-# Maybe I want to grab the subject as well
-
-print(Email('sample_json_message.json').get_client_code_and_case_number())
-#print(Email('sample_json_message.json').get_subject())
+    def get_final_list(self): # this will return a dictionary in such format: {Date: [case#:client code, case#:client code]...}
+        pass

@@ -89,7 +89,25 @@ class Email:
             result = "UNKNOWN ERROR"
         return result
 
-    def get_final_list(self): # this will return a dictionary in such format: {Date: [case#:client code, case#:client code]...}
+    def get_final_list(self): # this will return a nested dictionary: {Date: [case#:client code, case#:client code]...}
         date_list = self.get_date()
         client_code_case_number_dict = self.get_client_code_and_case_number()
-        final_result = dict(zip(date_list, client_code_case_number_dict))
+
+        resulting_dict = {}
+
+        for (date, cc_case_num) in zip(date_list, client_code_case_number_dict.items()):
+            dict_entry = dict(date = cc_case_num)
+            print(dict_entry)
+
+            if date in resulting_dict:
+                resulting_dict[date].append(cc_case_num)
+
+            elif date not in resulting_dict:
+                resulting_dict.update(dict_entry)
+
+        return resulting_dict
+
+
+            # my_dict = {'key': [1, 2, 3]}
+            # my_dict['key'].append(4)  # This method can be used if date already exists in the dictionary
+            # print(my_dict)  # Output: {'key': [1, 2, 3, 4]}

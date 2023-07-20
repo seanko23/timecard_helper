@@ -3,3 +3,4 @@ This is to help people enter timecards by providing the Case# and Client Code wh
 
 Sample json file exsts in this. The data format may change depending on the records returned with the Microsoft Graph API.
 
+More information on Microsoft Graph to come

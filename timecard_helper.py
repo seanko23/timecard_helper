@@ -117,6 +117,7 @@ class Email:
         new_resulting_dict = {key: [item for sublist in value for item in (sublist if isinstance(sublist, list) else [sublist])]
                  for key, value in resulting_dict.items()} #Explanation below
         return json.dumps(new_resulting_dict, indent = 4)
+        # return new_resulting_dict
 
         #{key: value for key, value in resulting_dict.items()} -> Iteratehrough each key-value pair in the original dictionary
         

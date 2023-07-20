@@ -30,7 +30,8 @@ class Email:
         date_list = []
         for i in self.open_file()['value']:
             date = datetime.strptime(i['sentDateTime'],"%Y-%m-%dT%H:%M:%SZ").date()
-            date_list.append(date)
+            date_str = date.strftime("%y-%m-%d")
+            date_list.append(date_str)
 
         return date_list
         
@@ -90,24 +91,34 @@ class Email:
         return result
 
     def get_final_list(self): # this will return a nested dictionary: {Date: [case#:client code, case#:client code]...}
+        
         date_list = self.get_date()
-        client_code_case_number_dict = self.get_client_code_and_case_number()
+        case_number_list = self.get_case_number()
+        client_code_list = self.get_client_code()
 
         resulting_dict = {}
 
-        for (date, cc_case_num) in zip(date_list, client_code_case_number_dict.items()):
-            dict_entry = dict(date = cc_case_num)
-            print(dict_entry)
+        for (date, case_number, client_code) in zip(date_list, case_number_list, client_code_list):
+            dict_entry = dict(casenumber = client_code)
+            dict_entry[case_number] = dict_entry['casenumber']
+            del dict_entry['casenumber']
+            dict_entry = [dict_entry] # making the dictionary entry into list to be appendable
+
+            final_dict_entry = dict(date = dict_entry)
+            final_dict_entry[date] = final_dict_entry['date']
+            del final_dict_entry['date']
 
             if date in resulting_dict:
-                resulting_dict[date].append(cc_case_num)
+                resulting_dict[date].append(dict_entry) # There is [] around each entry where final_dict_entry doesn't
 
             elif date not in resulting_dict:
-                resulting_dict.update(dict_entry)
+                resulting_dict.update(final_dict_entry)
 
-        return resulting_dict
+        new_resulting_dict = {key: [item for sublist in value for item in (sublist if isinstance(sublist, list) else [sublist])]
+                 for key, value in resulting_dict.items()} #Explanation below
+        return json.dumps(new_resulting_dict, indent = 4)
 
-
-            # my_dict = {'key': [1, 2, 3]}
-            # my_dict['key'].append(4)  # This method can be used if date already exists in the dictionary
-            # print(my_dict)  # Output: {'key': [1, 2, 3, 4]}
+        #{key: value for key, value in resulting_dict.items()} -> Iteratehrough each key-value pair in the original dictionary
+        
+        #new_resulting_dict = {key: [item for item in value] for key, value in resulting_dict.items()} 
+        # -> For each key-value pair, we iterate through the value, which is a list of dictionaries.

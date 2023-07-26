@@ -116,10 +116,39 @@ class Email:
 
         new_resulting_dict = {key: [item for sublist in value for item in (sublist if isinstance(sublist, list) else [sublist])]
                  for key, value in resulting_dict.items()} #Explanation below
-        return json.dumps(new_resulting_dict, indent = 4)
-        # return new_resulting_dict
+        return new_resulting_dict
 
         #{key: value for key, value in resulting_dict.items()} -> Iteratehrough each key-value pair in the original dictionary
         
         #new_resulting_dict = {key: [item for item in value] for key, value in resulting_dict.items()} 
         # -> For each key-value pair, we iterate through the value, which is a list of dictionaries.
+    
+    def get_json_output(self):
+        output = self.get_final_list()
+        return json.dumps(output, indent = 4)
+
+
+    def get_number_of_unknowns(self): #get count of emails where both client code and case number are unknowns
+        input = self.get_final_list() # gets the finalized list
+        identifier = "UNKNOWN"
+        case_counter = 0
+        client_counter = 0
+
+        for date, information in input.items():
+            for val in information:
+                for key, value in val.items():
+                    if identifier in key and identifier in value:
+                        case_counter += 1
+                        client_counter += 1
+                        print(case_counter,client_counter)
+                        continue
+                    elif identifier in key:
+                        case_counter += 1
+                        print(case_counter,client_counter)
+                        continue
+                    elif identifier in value:
+                        client_counter += 1
+                        print(case_counter,client_counter)
+                        continue
+
+        #print(case_counter,client_counter)

@@ -131,24 +131,42 @@ class Email:
     def get_number_of_unknowns(self): #get count of emails where both client code and case number are unknowns
         input = self.get_final_list() # gets the finalized list
         identifier = "UNKNOWN"
-        case_counter = 0
-        client_counter = 0
+        # case_counter = 0
+        # client_counter = 0
 
         for date, information in input.items():
+            totally_unknown = 0
+            case_counter = 0
+            client_counter = 0
+            case_str = ""
+            client_str = ""
             for val in information:
                 for key, value in val.items():
                     if identifier in key and identifier in value:
-                        case_counter += 1
-                        client_counter += 1
-                        print(case_counter,client_counter)
+                        totally_unknown += 1
                         continue
                     elif identifier in key:
+                        if case_counter > 0:
+                            client_str+=", "
                         case_counter += 1
-                        print(case_counter,client_counter)
+                        client_str+=value
                         continue
                     elif identifier in value:
+                        if client_counter > 0:
+                            case_str+=", "
                         client_counter += 1
-                        print(case_counter,client_counter)
+                        case_str+=key
                         continue
 
-        #print(case_counter,client_counter)
+            # add an if statement to not print something if counter = 0
+            if totally_unknown > 0 or case_counter > 0 or client_counter > 0:
+                print(f"On {date}: ")
+                if totally_unknown > 0:
+                    print(f"{totally_unknown} email(s) without any notable information")
+                elif case_counter > 0:
+                    print(f"{case_counter} email(s) without case number(s) for {client_str}")
+                elif client_counter > 0:
+                    print(f"{client_counter} email(s) where case numbers are: {case_str} without client code")
+                print("\n")
+            else:
+                print(f"On {date}:\nall emails had necessary details\n")

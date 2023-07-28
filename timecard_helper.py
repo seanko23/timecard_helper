@@ -122,9 +122,23 @@ class Email:
         
         #new_resulting_dict = {key: [item for item in value] for key, value in resulting_dict.items()} 
         # -> For each key-value pair, we iterate through the value, which is a list of dictionaries.
+
+    def get_final_list_cleanup(self):
+        identifier = "UNKNOWN"
+        input = self.get_final_list()
+        output = {
+            date: [{key: value} for item in value_list for key, value in item.items() if 'UNKNOWN' not in key and 'UNKNOWN' not in value]
+            for date, value_list in input.items()
+        }
+        return output
+
     
     def get_json_output(self):
         output = self.get_final_list()
+        return json.dumps(output, indent = 4)
+    
+    def get_cleanup_output(self):
+        output = self.get_final_list_cleanup()
         return json.dumps(output, indent = 4)
 
 
@@ -169,4 +183,5 @@ class Email:
                     print(f"{client_counter} email(s) where case numbers are: {case_str} without client code")
                 print("\n")
             else:
-                print(f"On {date}:\nall emails had necessary details\n")
+                # print(f"On {date}:\nall emails had necessary details\n")
+                pass

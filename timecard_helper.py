@@ -59,7 +59,8 @@ class Email:
         client_code_list = []
         
         for i in self.get_subject():
-            client_code = re.findall(r'(\S{4})', i)
+            res1 = " ".join(re.findall("[a-zA-Z]+", i))
+            client_code = re.findall(r'(\S{4})', res1)
             
             for x in client_code: # At this point nested list is called
                 client_code = x.upper()
@@ -91,53 +92,61 @@ class Email:
         return result
 
     def get_final_list(self): # this will return a nested dictionary: {Date: [case#:client code, case#:client code]...}
-        
-        date_list = self.get_date()
-        case_number_list = self.get_case_number()
-        client_code_list = self.get_client_code()
+        checker = self.get_client_code_and_case_number()
+        checker_unknown = "UNKNOWN ERROR"
+        if checker == checker_unknown:
+            return checker
+        else:
+            date_list = self.get_date()
+            case_number_list = self.get_case_number()
+            client_code_list = self.get_client_code()
 
-        resulting_dict = {}
+            resulting_dict = {}
 
-        for (date, case_number, client_code) in zip(date_list, case_number_list, client_code_list):
-            dict_entry = dict(casenumber = client_code)
-            dict_entry[case_number] = dict_entry['casenumber']
-            del dict_entry['casenumber']
-            dict_entry = [dict_entry] # making the dictionary entry into list to be appendable
+            for (date, case_number, client_code) in zip(date_list, case_number_list, client_code_list):
+                dict_entry = dict(casenumber = client_code)
+                dict_entry[case_number] = dict_entry['casenumber']
+                del dict_entry['casenumber']
+                dict_entry = [dict_entry] # making the dictionary entry into list to be appendable
 
-            final_dict_entry = dict(date = dict_entry)
-            final_dict_entry[date] = final_dict_entry['date']
-            del final_dict_entry['date']
+                final_dict_entry = dict(date = dict_entry)
+                final_dict_entry[date] = final_dict_entry['date']
+                del final_dict_entry['date']
 
-            if date in resulting_dict:
-                resulting_dict[date].append(dict_entry) # There is [] around each entry where final_dict_entry doesn't
+                if date in resulting_dict:
+                    resulting_dict[date].append(dict_entry) # There is [] around each entry where final_dict_entry doesn't
 
-            elif date not in resulting_dict:
-                resulting_dict.update(final_dict_entry)
+                elif date not in resulting_dict:
+                    resulting_dict.update(final_dict_entry)
 
-        new_resulting_dict = {key: [item for sublist in value for item in (sublist if isinstance(sublist, list) else [sublist])]
-                 for key, value in resulting_dict.items()} #Explanation below
-        return new_resulting_dict
+            new_resulting_dict = {key: [item for sublist in value for item in (sublist if isinstance(sublist, list) else [sublist])]
+                    for key, value in resulting_dict.items()} #Explanation below
 
-        #{key: value for key, value in resulting_dict.items()} -> Iteratehrough each key-value pair in the original dictionary
-        
-        #new_resulting_dict = {key: [item for item in value] for key, value in resulting_dict.items()} 
-        # -> For each key-value pair, we iterate through the value, which is a list of dictionaries.
+            sorted_resulting_dict = sorted(new_resulting_dict.items(), key=lambda x:x[0], reverse=False) # Order the output in date asc manner
+            converted_dict = dict(sorted_resulting_dict)
 
-    def get_final_list_cleanup(self):
+            return converted_dict
+
+            #{key: value for key, value in resulting_dict.items()} -> Iteratehrough each key-value pair in the original dictionary
+            
+            #new_resulting_dict = {key: [item for item in value] for key, value in resulting_dict.items()} 
+            # -> For each key-value pair, we iterate through the value, which is a list of dictionaries.
+
+    def get_final_list_cleanup(self): # Removes UNKNOWN values from get_final_list()
         identifier = "UNKNOWN"
         input = self.get_final_list()
         output = {
-            date: [{key: value} for item in value_list for key, value in item.items() if 'UNKNOWN' not in key and 'UNKNOWN' not in value]
+            date: [{key: value} for item in value_list for key, value in item.items() if identifier not in key and identifier not in value]
             for date, value_list in input.items()
         }
         return output
 
     
-    def get_json_output(self):
+    def get_json_output(self): # Returns JSON format with UNKNOWN values
         output = self.get_final_list()
         return json.dumps(output, indent = 4)
     
-    def get_cleanup_output(self):
+    def get_cleanup_output(self): # Returns JSON format without UNKNOWN values
         output = self.get_final_list_cleanup()
         return json.dumps(output, indent = 4)
 
@@ -172,7 +181,6 @@ class Email:
                         case_str+=key
                         continue
 
-            # add an if statement to not print something if counter = 0
             if totally_unknown > 0 or case_counter > 0 or client_counter > 0:
                 print(f"On {date}: ")
                 if totally_unknown > 0:
@@ -183,5 +191,4 @@ class Email:
                     print(f"{client_counter} email(s) where case numbers are: {case_str} without client code")
                 print("\n")
             else:
-                # print(f"On {date}:\nall emails had necessary details\n")
                 pass

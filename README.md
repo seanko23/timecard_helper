@@ -9,6 +9,11 @@ Sample json file exsts in this. The data format may change depending on the reco
 
 More information on Microsoft Graph to come
 
+Usage of app_constrants.py file:
+1. User should define the expected list of client codes
+2. User should define the beginning and end dates for which the result to populate on if not done so during Postman API
+
+
 
 Sample output:
 On 23-07-13: 

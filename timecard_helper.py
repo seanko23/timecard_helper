@@ -1,10 +1,13 @@
 import json
 import re
-import datetime
-from datetime import datetime
+from datetime import (
+    datetime,
+    timedelta
+)
+import app_constants
 
 class Email:
-    client_list = ['TRSC', 'VABC', 'CROC', 'EXLD']
+    client_list = app_constants.client_list
     counter_case = 0
     counter_code = 0
     
@@ -34,6 +37,30 @@ class Email:
             date_list.append(date_str)
 
         return date_list
+    
+    def get_user_defined_date(self):
+        delta = timedelta(days=1)
+        format = '%y-%m-%d'
+        date_list = app_constants.date_list
+        new_date_list = []
+
+        if not date_list: # if date_list is empty return an empty list
+            pass
+        else:
+            for i in range(len(date_list)):
+                if i == 0:
+                    new_date_list.append(date_list[i])
+                    x = 0
+                while new_date_list[-1] != date_list[-1]:
+                    date_entry = datetime.strptime(new_date_list[x], format)
+                    new_datetime = date_entry.date()+delta
+                    date_str = new_datetime.strftime("%y-%m-%d")
+                    new_date_list.append(date_str)
+                    x+=1
+                else:
+                    pass
+            
+        return new_date_list
         
     def get_case_number(self):
         case_number_list = []
@@ -68,7 +95,6 @@ class Email:
                     break
                     
                 elif client_code not in Email.client_list: # Here match is not found - clean up the addition
-                    #print(type(Email.counter_code))
                     no_client_code = "UNKNOWN Client Code"
                     Email.counter_code+=1
                     counter_str = str(Email.counter_code)
@@ -154,8 +180,6 @@ class Email:
     def get_number_of_unknowns(self): #get count of emails where both client code and case number are unknowns
         input = self.get_final_list() # gets the finalized list
         identifier = "UNKNOWN"
-        # case_counter = 0
-        # client_counter = 0
 
         for date, information in input.items():
             totally_unknown = 0

@@ -8,8 +8,11 @@ import app_constants
 
 class Email:
     client_list = app_constants.client_list
+    date_list = app_constants.date_list
     counter_case = 0
     counter_code = 0
+    client_list_error = "Please check if each client code is 4 letters each"
+    date_list_error = "Please check if date format is correct"
     
     def __init__(self, file_name):
         self.file_name = file_name
@@ -38,10 +41,18 @@ class Email:
 
         return date_list
     
+    def client_list_validator(self):
+        for i in Email.client_list:
+            if len(i) != 4:
+                return False
+            else:
+                pass
+        return True
+    
     def get_user_defined_date(self):
         delta = timedelta(days=1)
         format = '%y-%m-%d'
-        date_list = app_constants.date_list
+        date_list = Email.date_list
         new_date_list = []
 
         if not date_list: # if date_list is empty return an empty list
@@ -84,29 +95,33 @@ class Email:
     
     def get_client_code(self):
         client_code_list = []
+        checker = self.client_list_validator()
+
+        if checker == False:
+            return Email.client_list_error
+        elif checker == True:
+            for i in self.get_subject():
+                res1 = " ".join(re.findall("[a-zA-Z]+", i))
+                client_code = re.findall(r'(\S{4})', res1)
+                
+                for x in client_code: # At this point nested list is called
+                    client_code = x.upper()
+                    if client_code in Email.client_list: # If match is found the for loop breaks here
+                        break
+                        
+                    elif client_code not in Email.client_list: # Here match is not found - clean up the addition
+                        no_client_code = "UNKNOWN Client Code"
+                        Email.counter_code+=1
+                        counter_str = str(Email.counter_code)
+                        no_client_code += counter_str
+                        no_client_code_result = no_client_code
+                        client_code = None
         
-        for i in self.get_subject():
-            res1 = " ".join(re.findall("[a-zA-Z]+", i))
-            client_code = re.findall(r'(\S{4})', res1)
-            
-            for x in client_code: # At this point nested list is called
-                client_code = x.upper()
-                if client_code in Email.client_list: # If match is found the for loop breaks here
-                    break
-                    
-                elif client_code not in Email.client_list: # Here match is not found - clean up the addition
-                    no_client_code = "UNKNOWN Client Code"
-                    Email.counter_code+=1
-                    counter_str = str(Email.counter_code)
-                    no_client_code += counter_str
-                    no_client_code_result = no_client_code
-                    client_code = None
-    
-            if client_code is not None:
-                client_code_list.append(client_code)
-            else:
-                client_code_list.append(no_client_code_result)
-        return client_code_list
+                if client_code is not None:
+                    client_code_list.append(client_code)
+                else:
+                    client_code_list.append(no_client_code_result)
+            return client_code_list
     
     def get_client_code_and_case_number(self):
         case_number_list = self.get_case_number()
@@ -118,6 +133,7 @@ class Email:
         return result
 
     def get_final_list(self): # this will return a nested dictionary: {Date: [case#:client code, case#:client code]...}
+        date_validator = self.get_user_defined_date()
         checker = self.get_client_code_and_case_number()
         checker_unknown = "UNKNOWN ERROR"
         if checker == checker_unknown:
@@ -151,8 +167,20 @@ class Email:
             sorted_resulting_dict = sorted(new_resulting_dict.items(), key=lambda x:x[0], reverse=False) # Order the output in date asc manner
             converted_dict = dict(sorted_resulting_dict)
 
-            return converted_dict
-
+            # return converted_dict
+            removable_dates = []
+            if not date_validator:
+                return converted_dict
+            else:
+                for date, information in converted_dict.items():
+                    if date not in date_validator:
+                        removable_dates.append(date)
+                    else:
+                        pass
+                for i in removable_dates:
+                    del converted_dict[i]
+                return converted_dict
+        
             #{key: value for key, value in resulting_dict.items()} -> Iteratehrough each key-value pair in the original dictionary
             
             #new_resulting_dict = {key: [item for item in value] for key, value in resulting_dict.items()} 

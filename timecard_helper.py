@@ -58,19 +58,24 @@ class Email:
         if not date_list: # if date_list is empty return an empty list
             pass
         else:
-            for i in range(len(date_list)):
-                if i == 0:
-                    new_date_list.append(date_list[i])
-                    x = 0
-                while new_date_list[-1] != date_list[-1]:
-                    date_entry = datetime.strptime(new_date_list[x], format)
-                    new_datetime = date_entry.date()+delta
-                    date_str = new_datetime.strftime("%y-%m-%d")
-                    new_date_list.append(date_str)
-                    x+=1
-                else:
-                    pass
-            
+            for i in date_list:
+                try:
+                    datetime.strptime(i, format)
+                except ValueError:
+                    return Email.date_list_error
+        for i in range(len(date_list)):
+            if i == 0:
+                new_date_list.append(date_list[i])
+                x = 0
+            while new_date_list[-1] != date_list[-1]:
+                date_entry = datetime.strptime(new_date_list[x], format)
+                new_datetime = date_entry.date()+delta
+                date_str = new_datetime.strftime("%y-%m-%d")
+                new_date_list.append(date_str)
+                x+=1
+            else:
+                pass
+        
         return new_date_list
         
     def get_case_number(self):
@@ -98,7 +103,7 @@ class Email:
         checker = self.client_list_validator()
 
         if checker == False:
-            return Email.client_list_error
+            return False
         elif checker == True:
             for i in self.get_subject():
                 res1 = " ".join(re.findall("[a-zA-Z]+", i))
@@ -126,7 +131,10 @@ class Email:
     def get_client_code_and_case_number(self):
         case_number_list = self.get_case_number()
         client_code_list = self.get_client_code()
-        if len(case_number_list) == len(client_code_list):
+        checker = self.client_list_validator()
+        if checker == False:
+            return False
+        elif len(case_number_list) == len(client_code_list):
             result = dict(zip(case_number_list, client_code_list))
         else:
             result = "UNKNOWN ERROR"
@@ -138,6 +146,8 @@ class Email:
         checker_unknown = "UNKNOWN ERROR"
         if checker == checker_unknown:
             return checker
+        elif checker == False:
+            return Email.client_list_error
         else:
             date_list = self.get_date()
             case_number_list = self.get_case_number()
@@ -171,6 +181,8 @@ class Email:
             removable_dates = []
             if not date_validator:
                 return converted_dict
+            elif date_validator == Email.date_list_error:
+                return Email.date_list_error
             else:
                 for date, information in converted_dict.items():
                     if date not in date_validator:
@@ -187,60 +199,80 @@ class Email:
             # -> For each key-value pair, we iterate through the value, which is a list of dictionaries.
 
     def get_final_list_cleanup(self): # Removes UNKNOWN values from get_final_list()
-        identifier = "UNKNOWN"
-        input = self.get_final_list()
-        output = {
-            date: [{key: value} for item in value_list for key, value in item.items() if identifier not in key and identifier not in value]
-            for date, value_list in input.items()
-        }
-        return output
+        if self.get_final_list() == Email.client_list_error:
+            return Email.client_list_error
+        elif self.get_final_list() == Email.date_list_error:
+                return Email.date_list_error
+        else:
+            identifier = "UNKNOWN"
+            input = self.get_final_list()
+            output = {
+                date: [{key: value} for item in value_list for key, value in item.items() if identifier not in key and identifier not in value]
+                for date, value_list in input.items()
+            }
+            return output
 
     
     def get_json_output(self): # Returns JSON format with UNKNOWN values
-        output = self.get_final_list()
-        return json.dumps(output, indent = 4)
+        if self.get_final_list() == Email.client_list_error:
+            return Email.client_list_error
+        elif self.get_final_list() == Email.date_list_error:
+                return Email.date_list_error
+        else:
+            output = self.get_final_list()
+            return json.dumps(output, indent = 4)
     
     def get_cleanup_output(self): # Returns JSON format without UNKNOWN values
-        output = self.get_final_list_cleanup()
-        return json.dumps(output, indent = 4)
+        if self.get_final_list_cleanup() == Email.client_list_error:
+            return Email.client_list_error
+        elif self.get_final_list() == Email.date_list_error:
+                return Email.date_list_error
+        else:
+            output = self.get_final_list_cleanup()
+            return json.dumps(output, indent = 4)
 
 
     def get_number_of_unknowns(self): #get count of emails where both client code and case number are unknowns
         input = self.get_final_list() # gets the finalized list
         identifier = "UNKNOWN"
+        
+        if input == Email.client_list_error:
+            return Email.client_list_error
+        elif input == Email.date_list_error:
+                return Email.date_list_error
+        else:
+            for date, information in input.items():
+                totally_unknown = 0
+                case_counter = 0
+                client_counter = 0
+                case_str = ""
+                client_str = ""
+                for val in information:
+                    for key, value in val.items():
+                        if identifier in key and identifier in value:
+                            totally_unknown += 1
+                            continue
+                        elif identifier in key:
+                            if case_counter > 0:
+                                client_str+=", "
+                            case_counter += 1
+                            client_str+=value
+                            continue
+                        elif identifier in value:
+                            if client_counter > 0:
+                                case_str+=", "
+                            client_counter += 1
+                            case_str+=key
+                            continue
 
-        for date, information in input.items():
-            totally_unknown = 0
-            case_counter = 0
-            client_counter = 0
-            case_str = ""
-            client_str = ""
-            for val in information:
-                for key, value in val.items():
-                    if identifier in key and identifier in value:
-                        totally_unknown += 1
-                        continue
-                    elif identifier in key:
-                        if case_counter > 0:
-                            client_str+=", "
-                        case_counter += 1
-                        client_str+=value
-                        continue
-                    elif identifier in value:
-                        if client_counter > 0:
-                            case_str+=", "
-                        client_counter += 1
-                        case_str+=key
-                        continue
-
-            if totally_unknown > 0 or case_counter > 0 or client_counter > 0:
-                print(f"On {date}: ")
-                if totally_unknown > 0:
-                    print(f"{totally_unknown} email(s) without any notable information")
-                elif case_counter > 0:
-                    print(f"{case_counter} email(s) without case number(s) for {client_str}")
-                elif client_counter > 0:
-                    print(f"{client_counter} email(s) where case numbers are: {case_str} without client code")
-                print("\n")
-            else:
-                pass
+                if totally_unknown > 0 or case_counter > 0 or client_counter > 0:
+                    print(f"On {date}: ")
+                    if totally_unknown > 0:
+                        print(f"{totally_unknown} email(s) without any notable information")
+                    elif case_counter > 0:
+                        print(f"{case_counter} email(s) without case number(s) for {client_str}")
+                    elif client_counter > 0:
+                        print(f"{client_counter} email(s) where case numbers are: {case_str} without client code")
+                    print("\n")
+                else:
+                    pass

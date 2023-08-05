@@ -1,5 +1,7 @@
 # timecard_helper
 
+How to use Postman and Microsoft Graph API: https://learn.microsoft.com/en-us/graph/use-postman#step-2-download-the-postman-agent-optional---postman-web-browser-only
+
 The goal of the Time Card Helper project is to decrease the amount of time people spend when entering timecards. From my person experience, the object is to reduce the timecard entry effort from 30 minutes to 10 or less minutes.
 This is achieved by reading the sent file folder for user specified date. From the output JSON file, the goal is to just read the subject and sentDateTime attributes.
 
@@ -26,3 +28,15 @@ On 23-07-15:
 
 On 23-07-11: 
 2 email(s) without any notable information
+
+Another Ex.
+{
+    "23-07-11": [
+        {
+            "123456": "VABC"
+        },
+        {
+            "772262": "VABC"
+        }
+    ]
+}

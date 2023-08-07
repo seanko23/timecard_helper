@@ -9,7 +9,7 @@ With some data processing, the program is able to output the statistical output 
 
 Sample json file exsts in this. The data format may change depending on the records returned with the Microsoft Graph API.
 
-More information on Microsoft Graph to come
+Each individual user may need to set up Azure access for this feature.
 
 Usage of app_constrants.py file:
 1. User should define the expected list of client codes

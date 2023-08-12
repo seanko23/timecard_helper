@@ -230,7 +230,16 @@ class Email:
         else:
             output = self.get_final_list_cleanup()
             return json.dumps(output, indent = 4)
+        
+    def output_in_a_file(self):
+        with open("output.txt", "w") as f:
+            print(self.get_json_output(), file=f)
+            return "Printed"
 
+    def cleaned_output_in_a_file(self):
+        with open("output.txt", "w") as f:
+            print(self.get_cleanup_output(), file=f)
+            return "Printed"
 
     def get_number_of_unknowns(self): #get count of emails where both client code and case number are unknowns
         input = self.get_final_list() # gets the finalized list

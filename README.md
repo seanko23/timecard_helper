@@ -15,7 +15,12 @@ Usage of app_constrants.py file:
 1. User should define the expected list of client codes
 2. User should define the beginning and end dates for which the result to populate on if not done so during Postman API
 
+Prerequisites:
+1. User must have python installed ideally version 3.6 or above
+2. Change variables in app_constant.py file
+3. Must have email account referenced in Azure AD to utilize Microsoft Graph
 
+Demo video to come in near future
 
 Sample output:
 On 23-07-13: 
